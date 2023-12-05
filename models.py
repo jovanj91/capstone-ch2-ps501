@@ -12,7 +12,6 @@ class AuthModel(Base):
     user_email = Column(String(255))
     user_password = Column(String(255)) #hashed
 
-
     def __init__(self, username, email):
         self.user_name = username
         self.user_email = email
