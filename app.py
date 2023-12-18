@@ -9,7 +9,7 @@ from flask_security.forms import LoginForm
 from functools import wraps
 import jwt, os, datetime, werkzeug
 from database import db_session, init_db
-from models import User, Role
+from models import User, Role, RolesUsers, StuntCheck
 
 
 app = Flask(__name__)
@@ -29,14 +29,15 @@ security = Security(app, user_datastore)
 
 
 class HelloWorld(Resource):
+    @login_required
     def get(self):
-        return "<p>Hello, World!</p>"
+        return f"<p>Hello, World! {current_user.username}</p>"
 
 class RegisterUser(Resource):
     def post(self):
-        usernameInput = request.json['user_name']
-        useremailInput = request.json['user_email']
-        passwordInput = request.json['user_password'].encode('utf-8')
+        usernameInput = request.json['username']
+        useremailInput = request.json['email']
+        passwordInput = request.json['password'].encode('utf-8')
 
         user = security.datastore.find_user(email= useremailInput)
         if not user:
@@ -49,32 +50,14 @@ class RegisterUser(Resource):
                 db_session.rollback()
                 return make_response(jsonify(error="Registration failed", details=str(e)), )
         else:
-            return make_response(jsonify(error="Email telah terdaftar" ), 409  )
-
-
-def token_requried(f):
-    @wraps(f)
-    def decorated(*args, **kwargs):
-        token = request.headers.get('Authorization')
-        if not token :
-            return make_response(jsonify({'message': 'Token is missing'}), 401)
-        try:
-            data = jwt.decode(token, app.config['SECRET_KEY'], algorithms=['HS256'])
-        except jwt.ExpiredSignatureError:
-            return make_response(jsonify({'message': 'Token isexpired'}), 401)
-        except jwt.InvalidTokenError:
-            return make_response(jsonify({'message': 'Invalid Token'}), 401)
-        return f(data, *args, **kwargs)
-    return decorated
-
-
+            return make_response(jsonify(error="Email already registered" ), 409  )
 
 
 class AllUser(Resource):
     @login_required
     @roles_required('admin')
     def get(self):
-        allUser = db_session.query(User).all()
+        allUser = db_session.query(User).join(RolesUsers).filter(RolesUsers.role_id == 2)
         userlist = []
         for user in allUser:
             userlist.append({
@@ -85,12 +68,44 @@ class AllUser(Resource):
                 'data' : userlist
             }), 201)
 
+class InputData(Resource):
+    @login_required
+    @roles_required('user')
+    def post(self):
+        nameInput = request.json['name']
+        ageInput = request.json['age']
+        genderInput = request.json['gender']
+        heightInput = request.json['height']
+        weightInput = request.json['weight']
+        bmiInput = request.json['bmi']
+
+        uname = db_session.query(User).filter_by(username=current_user.username).first()
+        print(uname)
+        print(type(uname))
+        inputData = StuntCheck(name=nameInput, age=ageInput, gender=genderInput, height=heightInput, weight=weightInput, bodyMassIndex=bmiInput, user=uname)
+
+        if nameInput and ageInput and genderInput and heightInput and weightInput and bmiInput:
+            db_session.add(inputData)
+            db_session.commit()
+            try:
+                db_session.close()
+                return make_response(jsonify(message="Data added successfully"), 201)
+            except Exception as e:
+                db_session.rollback()
+                return make_response(jsonify(error="Data failed to be added", details=str(e)), )
+        else:
+            return make_response(jsonify(message="Please Fill Data Completely"), 404)
+
+api.add_resource(HelloWorld, "/", methods = ["GET"])
 api.add_resource(RegisterUser, "/register", methods = ["POST"])
+#login API already handled with Flask_security
 api.add_resource(AllUser, "/allUser",  methods = ["GET"])
+api.add_resource(InputData, "/inputData",  methods = ["POST"])
+
 
 with app.app_context():
     init_db()
-    print(current_user)
+
 if __name__ == '__main__':
     # run() method of Flask class runs the application
     # on the local development server.

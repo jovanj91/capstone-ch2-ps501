@@ -3,7 +3,7 @@ from flask_security import UserMixin, RoleMixin, AsaList
 from sqlalchemy.orm import relationship, backref
 from sqlalchemy.ext.mutable import MutableList
 from sqlalchemy import Boolean, DateTime, Column, Integer, \
-                    String, ForeignKey
+                    String, ForeignKey, func
 
 class RolesUsers(Base):
     __tablename__ = 'roles_users'
@@ -32,9 +32,20 @@ class User(Base, UserMixin):
     active = Column(Boolean())
     fs_uniquifier = Column(String(64), unique=True, nullable=False)
     confirmed_at = Column(DateTime())
-    roles = relationship('Role', secondary='roles_users',
-                         backref=backref('users', lazy='dynamic'))
-
-
+    roles = relationship('Role', secondary='roles_users', backref=backref('users', lazy='dynamic'))
+    stuntchecks = relationship('StuntCheck', backref='user', lazy='dynamic')
     def __repr__(self):
         return f"<User(id={self.id}, username='{self.username}', email='{self.email}')>"
+
+
+class StuntCheck(Base):
+    __tablename__ = 'stuntCheck'
+    id = Column(Integer, primary_key=True)
+    user_id = Column('user_id', Integer(), ForeignKey('user.id'))
+    name = Column(String(255))
+    age = Column(String(255))
+    gender = Column(String(255))
+    weight = Column(String(255))
+    height = Column(String(255))
+    bodyMassIndex = Column(String(255))
+    checked_at = Column(DateTime(), default=func.now())
