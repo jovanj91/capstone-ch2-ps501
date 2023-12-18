@@ -15,7 +15,6 @@ from models import User, Role, RolesUsers, StuntCheck
 app = Flask(__name__)
 api = Api(app)
 
-app.config['DEBUG'] = True
 app.config['SECRET_KEY'] = os.environ.get("SECRET_KEY", 'pf9Wkove4IKEAXvy-cQkeDPhv9Cb3Ag-wyJILbq_dFw')
 app.config['SECURITY_PASSWORD_SALT'] = os.environ.get("SECURITY_PASSWORD_SALT", '146585145368132386173505678016728509634')
 app.config['SECURITY_LOGIN_URL'] = '/login'
@@ -109,5 +108,4 @@ with app.app_context():
 if __name__ == '__main__':
     # run() method of Flask class runs the application
     # on the local development server.
-    # app.run(port='9000', debug=True)
-    app.run('0.0.0.0')
+    app.run(port='3000')
