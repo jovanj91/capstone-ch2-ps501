@@ -49,3 +49,4 @@ class StuntCheck(Base):
     height = Column(String(255))
     bodyMassIndex = Column(String(255))
     checked_at = Column(DateTime(), default=func.now())
+    
