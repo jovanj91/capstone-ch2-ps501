@@ -5,12 +5,10 @@ from flask_security import Security, current_user, login_required, SQLAlchemySes
 from flask_security.utils import verify_password, hash_password, login_user
 from flask_security.forms import LoginForm
 
-
 from functools import wraps
 import jwt, os, datetime, werkzeug
 from database import db_session, init_db
-from models import User, Role, RolesUsers, StuntCheck
-
+from models import User, Role, RolesUsers, StuntCheck, ChildrenData
 
 app = Flask(__name__)
 api = Api(app)
@@ -67,39 +65,79 @@ class AllUser(Resource):
                 'data' : userlist
             }), 201)
 
-class InputData(Resource):
+class InputChildData(Resource):
     @login_required
     @roles_required('user')
     def post(self):
-        nameInput = request.json['name']
-        ageInput = request.json['age']
+        firsnameInput = request.json['firstname']
+        lastnameInput = request.json['lastname']
         genderInput = request.json['gender']
-        heightInput = request.json['height']
-        weightInput = request.json['weight']
-        bmiInput = request.json['bmi']
-
+        dobInput = request.json['dob']
         uname = db_session.query(User).filter_by(username=current_user.username).first()
-        print(uname)
-        print(type(uname))
-        inputData = StuntCheck(name=nameInput, age=ageInput, gender=genderInput, height=heightInput, weight=weightInput, bodyMassIndex=bmiInput, user=uname)
 
-        if nameInput and ageInput and genderInput and heightInput and weightInput and bmiInput:
-            db_session.add(inputData)
-            db_session.commit()
-            try:
-                db_session.close()
-                return make_response(jsonify(message="Data added successfully"), 201)
-            except Exception as e:
-                db_session.rollback()
-                return make_response(jsonify(error="Data failed to be added", details=str(e)), )
-        else:
-            return make_response(jsonify(message="Please Fill Data Completely"), 404)
+        inputData = ChildrenData(first_name=firsnameInput, last_name=lastnameInput, child_dob=dobInput, gender=genderInput,  user=uname)
+
+        db_session.add(inputData)
+        db_session.commit()
+        try:
+            db_session.close()
+            return make_response(jsonify(message="Data added successfully"), 201)
+        except Exception as e:
+            db_session.rollback()
+            return make_response(jsonify(error="Data failed to be added", details=str(e)), )
+
+class GetChildrenData(Resource):
+    @login_required
+    @roles_required('user')
+    def get(self):
+        children = db_session.query(ChildrenData).filter(ChildrenData.user_id == current_user.id)
+        childrenList = []
+        for child in children:
+            lastCheck = db_session.query(StuntCheck).filter(StuntCheck.child_id == child.id).order_by(StuntCheck.checked_at.desc()).first()
+            childrenList.append({
+                'child_id' : child.id,
+                'firstname' : child.first_name,
+                'lastname' :child.last_name,
+                'gender' : child.gender,
+                'dob' : child.child_dob,
+                'lastCheck' : lastCheck
+            })
+        return make_response(jsonify({
+            'data' : childrenList
+        }), 201)
+
+
+class GetChildCheckHistory():
+    @login_required
+    @roles_required('user')
+    def get(self):
+        child_id = request.json['child_id']
+        histories = db_session.query(StuntCheck).filter(StuntCheck.child_id == child_id)
+        historyList = []
+        for history in histories:
+            historyList.append({
+                'weight' : history.weight,
+                'height' : history.height,
+                'age' : history.age,
+                'bmi' : history.bodyMassIndex,
+                'checkResult' : history.checkResult,
+                'checkedAt' : history.checked_at,
+            })
+        return make_response(jsonify({
+            'data' : historyList
+        }), 201)
+
 
 api.add_resource(HelloWorld, "/", methods = ["GET"])
 api.add_resource(RegisterUser, "/register", methods = ["POST"])
 #login API already handled with Flask_security
 api.add_resource(AllUser, "/allUser",  methods = ["GET"])
-api.add_resource(InputData, "/inputData",  methods = ["POST"])
+api.add_resource(InputChildData, "/inputChildData",  methods = ["POST"])
+api.add_resource(GetChildrenData, "/getChildrenData",  methods = ["GET"])
+api.add_resource(GetChildCheckHistory, "/getChildHistory",  methods = ["GET"])
+
+
+
 
 
 with app.app_context():

@@ -3,7 +3,7 @@ from flask_security import UserMixin, RoleMixin, AsaList
 from sqlalchemy.orm import relationship, backref
 from sqlalchemy.ext.mutable import MutableList
 from sqlalchemy import Boolean, DateTime, Column, Integer, \
-                    String, ForeignKey, func
+                    String, ForeignKey, Double, func
 
 class RolesUsers(Base):
     __tablename__ = 'roles_users'
@@ -20,7 +20,7 @@ class Role(Base, RoleMixin):
 
 class User(Base, UserMixin):
     __tablename__ = 'user'
-    id = Column(Integer, primary_key=True)
+    id = Column(Integer(), primary_key=True)
     email = Column(String(255), unique=True)
     username = Column(String(255), unique=True, nullable=True)
     password = Column(String(255), nullable=False)
@@ -33,20 +33,27 @@ class User(Base, UserMixin):
     fs_uniquifier = Column(String(64), unique=True, nullable=False)
     confirmed_at = Column(DateTime())
     roles = relationship('Role', secondary='roles_users', backref=backref('users', lazy='dynamic'))
-    stuntchecks = relationship('StuntCheck', backref='user', lazy='dynamic')
+    child_data = relationship('ChildrenData', backref='user', lazy='dynamic')
     def __repr__(self):
         return f"<User(id={self.id}, username='{self.username}', email='{self.email}')>"
 
+class ChildrenData(Base):
+    __tablename__ = 'childrenData'
+    id = Column(Integer(), primary_key=True)
+    user_id = Column('user_id', Integer(), ForeignKey('user.id'))
+    first_name = Column(String(24))
+    last_name = Column(String(24))
+    child_dob = Column(DateTime())
+    gender = Column(String(12))
+    stunt_check = relationship('StuntCheck', backref='child', lazy='dynamic')
 
 class StuntCheck(Base):
     __tablename__ = 'stuntCheck'
     id = Column(Integer, primary_key=True)
-    user_id = Column('user_id', Integer(), ForeignKey('user.id'))
-    name = Column(String(255))
-    age = Column(String(255))
-    gender = Column(String(255))
-    weight = Column(String(255))
-    height = Column(String(255))
-    bodyMassIndex = Column(String(255))
-    checked_at = Column(DateTime(), default=func.now())
-    
+    child_id = Column('child_id', Integer(), ForeignKey('childrenData.id'))
+    age = Column(Integer())
+    weight = Column(Double(10))
+    height = Column(Double(10))
+    bodyMassIndex = Column(Double(10))
+    checkResult = Column(String(24))
+    checked_at = Column(DateTime())
