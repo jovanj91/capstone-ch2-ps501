@@ -3,11 +3,11 @@ entrypoint: gunicorn -b :$PORT main:app
 
 env_variables:
   INSTANCE_UNIX_SOCKET: /cloudsql/capstone-ch2-ps501:asia-southeast2:db-stuntapp
-  INSTANCE_HOST: '127.0.0.1'
-  DB_USER: 'root'
-  DB_PASS: 'root'
+  INSTANCE_HOST: '34.128.111.168'
+  DB_USER: 'stuntadmin'
+  DB_PASS: 'stuntadmin123'
   DB_NAME: 'db_stuntapp'
   DB_PORT: 3306
 
-beta_settings:
-  cloud_sql_instances: capstone-ch2-ps501:asia-southeast2:db-stuntapp
+# beta_settings:
+#   cloud_sql_instances: capstone-ch2-ps501:asia-southeast2:db-stuntapp
