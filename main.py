@@ -3,7 +3,7 @@ from flask_restful import Resource, Api
 from flask_cors import CORS
 from flask_security import Security, current_user, login_required, SQLAlchemySessionUserDatastore, permissions_accepted, roles_required
 from flask_security.utils import verify_password, hash_password, login_user
-from flask_security.forms import LoginForm
+
 
 from functools import wraps
 import jwt, os, datetime, werkzeug
@@ -107,7 +107,7 @@ class GetChildrenData(Resource):
         }), 201)
 
 
-class GetChildCheckHistory():
+class GetChildCheckHistory(Resource):
     @login_required
     @roles_required('user')
     def get(self):

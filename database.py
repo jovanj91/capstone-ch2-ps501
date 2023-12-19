@@ -5,10 +5,10 @@ from sqlalchemy.ext.declarative import declarative_base
 # engine = create_engine('mysql+pymysql://freedb_admindbjantung:h#j7@#cHBN7Gaf@@sql.freedb.tech:3306/freedb_db_cekjantung')
 url_object = URL.create(
     "mysql+pymysql",
-    username="freedb_admindbjantung",
-    password="h#j7@#cHBN7Gaf@",  # plain (unescaped) text
+    username="freedb_dbstunting_admin",
+    password="ABa%Vm3zRbR!Sfk",  # plain (unescaped) text
     host="sql.freedb.tech",
-    database="freedb_db_cekjantung",
+    database="freedb_db_stuntingapp",
 )
 engine = create_engine(url_object)
 db_session = scoped_session(sessionmaker(autocommit=False,
