@@ -1,14 +1,21 @@
+import os
 from sqlalchemy import create_engine, URL
 from sqlalchemy.orm import scoped_session, sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
 
-# engine = create_engine('mysql+pymysql://freedb_admindbjantung:h#j7@#cHBN7Gaf@@sql.freedb.tech:3306/freedb_db_cekjantung')
+db_host = os.environ["INSTANCE_HOST"]
+db_user = os.environ["DB_USER"]
+db_pass = os.environ["DB_PASS"]
+db_name = os.environ["DB_NAME"]
+db_port = os.environ["DB_PORT"]
+
 url_object = URL.create(
-    "mysql+pymysql",
-    username="freedb_dbstunting_admin",
-    password="ABa%Vm3zRbR!Sfk",  # plain (unescaped) text
-    host="sql.freedb.tech",
-    database="freedb_db_stuntingapp",
+    drivername="mysql+pymysql",
+    username=db_user,
+    password=db_pass,
+    host=db_host,
+    port=db_host,
+    database=db_name
 )
 engine = create_engine(url_object)
 db_session = scoped_session(sessionmaker(autocommit=False,

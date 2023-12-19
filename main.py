@@ -20,10 +20,8 @@ app.config["SECURITY_EMAIL_VALIDATOR_ARGS"] = {"check_deliverability": False}
 app.config["WTF_CSRF_ENABLED"] = False
 app.teardown_appcontext(lambda exc: db_session.close())
 
-
 user_datastore = SQLAlchemySessionUserDatastore(db_session, User, Role)
 security = Security(app, user_datastore)
-
 
 class HelloWorld(Resource):
     @login_required
@@ -48,7 +46,6 @@ class RegisterUser(Resource):
                 return make_response(jsonify(error="Registration failed", details=str(e)), )
         else:
             return make_response(jsonify(error="Email already registered" ), 409  )
-
 
 class AllUser(Resource):
     @login_required
