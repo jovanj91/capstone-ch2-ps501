@@ -3,7 +3,9 @@ from sqlalchemy import create_engine, URL
 from sqlalchemy.orm import scoped_session, sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
 
-db_host = os.environ.get('INSTANCE_HOST')
+db_host = os.environ[
+    "INSTANCE_HOST"
+]
 db_user = os.environ.get('DB_USER')
 db_pass = os.environ.get('DB_PASS')
 db_name = os.environ.get('DB_NAME')
