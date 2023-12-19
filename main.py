@@ -127,6 +127,16 @@ class GetChildCheckHistory():
             'data' : historyList
         }), 201)
 
+class StuntingChecking(Resource):
+    @login_required
+    @roles_required('user')
+    def post(self):
+        child_id = request.json['child_id']
+        weight = request.json['weight']
+        height = request.json['height']
+        age = request.json['age']
+        bmi = request.json['bmi']
+        checkedAt = request.json['checked_at']
 
 api.add_resource(HelloWorld, "/", methods = ["GET"])
 api.add_resource(RegisterUser, "/register", methods = ["POST"])
@@ -135,10 +145,7 @@ api.add_resource(AllUser, "/allUser",  methods = ["GET"])
 api.add_resource(InputChildData, "/inputChildData",  methods = ["POST"])
 api.add_resource(GetChildrenData, "/getChildrenData",  methods = ["GET"])
 api.add_resource(GetChildCheckHistory, "/getChildHistory",  methods = ["GET"])
-
-
-
-
+api.add_resource(StuntingChecking, "/stuntingCheck",  methods = ["POST"])
 
 with app.app_context():
     init_db()
