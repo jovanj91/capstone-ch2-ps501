@@ -49,11 +49,11 @@ class ChildrenData(Base):
 
 class StuntCheck(Base):
     __tablename__ = 'stuntCheck'
-    id = Column(Integer, primary_key=True)
+    id = Column(Integer(), primary_key=True)
     child_id = Column('child_id', Integer(), ForeignKey('childrenData.id'))
     age = Column(Integer())
-    weight = Column(Double(10))
-    height = Column(Double(10))
-    bodyMassIndex = Column(Double(10))
+    weight = Column(Double())
+    height = Column(Double())
+    bodyMassIndex = Column(Double())
     checkResult = Column(String(24))
     checked_at = Column(DateTime())
