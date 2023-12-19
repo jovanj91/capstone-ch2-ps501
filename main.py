@@ -138,6 +138,7 @@ class StuntingChecking(Resource):
         bmi = request.json['bmi']
         checkedAt = request.json['checked_at']
 
+
 api.add_resource(HelloWorld, "/", methods = ["GET"])
 api.add_resource(RegisterUser, "/register", methods = ["POST"])
 #login API already handled with Flask_security
