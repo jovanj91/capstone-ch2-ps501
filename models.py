@@ -1,9 +1,9 @@
-from database import Base
+from database_local import Base
 from flask_security import UserMixin, RoleMixin, AsaList
 from sqlalchemy.orm import relationship, backref
 from sqlalchemy.ext.mutable import MutableList
 from sqlalchemy import Boolean, DateTime, Column, Integer, \
-                    String, ForeignKey, Double, func
+                    String, ForeignKey, Double, Date, func
 
 class RolesUsers(Base):
     __tablename__ = 'roles_users'
@@ -43,8 +43,8 @@ class ChildrenData(Base):
     user_id = Column('user_id', Integer(), ForeignKey('user.id'))
     first_name = Column(String(24))
     last_name = Column(String(24))
-    child_dob = Column(DateTime())
-    gender = Column(String(12))
+    child_dob = Column(Date())
+    gender = Column(Integer())
     stunt_check = relationship('StuntCheck', backref='child', lazy='dynamic')
 
 class StuntCheck(Base):
